@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"encoding/json"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -50,9 +51,23 @@ func handleMain(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, htmlIndex)
 }
 
+type URL struct {
+	URL string `json:"url"`
+}
+
 func handleGoogleLogin(w http.ResponseWriter, r *http.Request) {
 	url := googleOauthConfig.AuthCodeURL(oauthStateString)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+
+	var urlGoogle URL
+	urlGoogle.URL = url
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(urlGoogle)
+	//panic(err.Error())
+	//return
+	//http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 func handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
