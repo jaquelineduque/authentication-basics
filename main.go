@@ -6,9 +6,12 @@ import (
 	"net/http"
 	"os"
 
+	"encoding/json"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"projetos/authentication-basics/db"
+	"projetos/authentication-basics/entity"
 )
 
 var (
@@ -62,6 +65,12 @@ func handleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+	var user entity.GoogleUser
+	if err := json.Unmarshal(content, &user); err != nil {
+		panic("Erro")
+	}
+
+	db.CreateUser(user.Email)
 
 	fmt.Fprintf(w, "Content: %s\n", content)
 }
